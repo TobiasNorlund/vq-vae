@@ -11,7 +11,7 @@ When starting a new project, please do the following:
 ./scripts/start.sh [--gpu] [--notebook] [--tensorboard] [-v|--mount /host/path:/container/path] [--detach]
 ```
 5. Start a development container in VS Code:
-   There are two ways this can be done. 
+   There are two ways this can be done.
    - Attach to the already running container (preferred when container is running on remote host)
       - In VS Code, install the `Remote-Containers` extention
       - Run `Remote-Containers: Attach to Running Container...` (F1). Select the newly created container
