@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
+
+# from torch.autograd import Variable # Not needed
 from typing import Tuple, Union, List, Dict
 import numpy as np
 from torch import Tensor as T
@@ -55,6 +56,15 @@ def GetConv2dSequentialShape(
         i["W_in"] = prev[3]
         shapes.append(Conv2d_output_shape(**i))
         prev = shapes[-1]
+        assert shapes[-1] == tuple(
+            nn.Conv2d(
+                i["C_in"],
+                i["C_out"],
+                kernel_size=i["kernel_size"],
+                stride=i["stride"],
+                padding=i["padding"],
+            )(torch.randn(shapes[-2])).shape
+        )
     return shapes
 
 
@@ -198,10 +208,15 @@ class VAE(nn.Module):
             return nn.Linear(n_in, n_out)
 
     def kldivloss(self, mu, logsigma):
-        return ((mean ** 2 + logvar.exp() - 1 - logvar) / 2).mean()
+        return ((mu ** 2 + logsigma.exp() - 1 - logsigma) / 2).mean()
 
     def recloss(self, x, x_hat):
-        return nn.BCELoss(size_average=False)(x_hat, x)
+        try:
+            return nn.BCELoss(size_average=False)(x_hat, x)
+        except Exception:
+            print(x_hat)
+            print(x)
+            raise Exception("ERROR")
 
     def loss(self, mu, logsigma, x, x_hat):
         loss = {}

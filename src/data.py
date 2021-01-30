@@ -2,6 +2,7 @@ from torchvision.datasets import CIFAR100, CIFAR10, MNIST, FashionMNIST  # noqa:
 from torch.utils.data import DataLoader, random_split
 import os
 import torch
+from torchvision import transforms
 
 
 def get_data_loader(
@@ -21,7 +22,12 @@ def get_data_loader(
     dataset = dataset_class(
         os.path.join(os.getcwd(), dataset_root), **additional_dataset_args
     )
-    return DataLoader(dataset=dataset, shuffle=shuffle, **additional_dataloader_args)
+    return DataLoader(
+        dataset=dataset,
+        shuffle=shuffle,
+        batch_size=batch_size,
+        **additional_dataloader_args
+    )
 
 
 def train_val_test_loader(
@@ -35,12 +41,19 @@ def train_val_test_loader(
     download: bool = False,
     seed: int = 1234,
 ):
-    # assert sum(fractions) == 1.0, "train val test fractions must sum up to 1. Found {}".format(sum(fractions))
     fractions = [x / sum(fractions) for x in fractions]
     dataset_class = eval(dataset)
-    dataset = dataset_class(
-        os.path.join(os.getcwd(), dataset_root), **additional_dataset_args
+    transform = additional_dataset_args.get(
+        "transform", transforms.Compose([transforms.ToTensor()])
     )
+    if "transform" in additional_dataset_args:
+        del additional_dataset_args["transform"]
+    dataset = dataset_class(
+        os.path.join(os.getcwd(), dataset_root),
+        transform=transform,
+        **additional_dataset_args
+    )
+
     n_rows = dataset.data.shape[0]
     if len(fractions) <= 2:
         train, test = random_split(
@@ -49,32 +62,47 @@ def train_val_test_loader(
             generator=torch.Generator().manual_seed(seed),
         )
         train_loader = DataLoader(
-            dataset=train, shuffle=shuffle, **additional_dataloader_args
+            dataset=train,
+            shuffle=shuffle,
+            batch_size=batch_size,
+            **additional_dataloader_args
         )
         test_loader = DataLoader(
-            dataset=test, shuffle=shuffle, **additional_dataloader_args
+            dataset=test,
+            shuffle=shuffle,
+            batch_size=batch_size,
+            **additional_dataloader_args
         )
         return train, test
     else:
         train, val, test = random_split(
             dataset,
             [
-                n_rows * int(fractions[0]),
-                n_rows * int(fractions[1]),
-                n_rows - n_rows * int(fractions[0]) - n_rows * int(fractions[1]),
+                int(n_rows * fractions[0]),
+                int(n_rows * fractions[1]),
+                n_rows - int(n_rows * fractions[0]) - int(n_rows * fractions[1]),
             ],
             generator=torch.Generator().manual_seed(seed),
         )
         train_loader = DataLoader(
-            dataset=train, shuffle=shuffle, **additional_dataloader_args
+            dataset=train,
+            shuffle=shuffle,
+            batch_size=batch_size,
+            **additional_dataloader_args
         )
         val_loader = DataLoader(
-            dataset=val, shuffle=shuffle, **additional_dataloader_args
+            dataset=val,
+            shuffle=shuffle,
+            batch_size=batch_size,
+            **additional_dataloader_args
         )
         test_loader = DataLoader(
-            dataset=test, shuffle=shuffle, **additional_dataloader_args
+            dataset=test,
+            shuffle=shuffle,
+            batch_size=batch_size,
+            **additional_dataloader_args
         )
-        return train, val, test
+        return train_loader, val_loader, test_loader
 
 
 if __name__ == "__main__":
