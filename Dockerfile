@@ -1,5 +1,6 @@
 FROM python:3.8
 
+# hadolint ignore=DL3027
 RUN apt update && apt install -y less nano jq git
 
 COPY bash.bashrc /etc/bash.bashrc
