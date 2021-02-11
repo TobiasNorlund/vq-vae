@@ -10,13 +10,13 @@ def run_one_vae_epoch(model, data_loader, optimizer, is_training: bool):
     kldivloss = 0
     recloss = 0
     for batch, labels in data_loader:
-        (mu, logsigma), recons = model(batch)
+        (mu, logsigma_sq), recons = model(batch)
 
         if is_training is True:
             optimizer.zero_grad()
 
         # Now, compute the loss
-        loss, loss_dict = model.loss(mu, logsigma, x=batch, x_hat=recons)
+        loss, loss_dict = model.loss(mu, logsigma_sq, x=batch, x_hat=recons)
         tot_loss += loss
         kldivloss += loss_dict["kldivloss"]
         recloss += loss_dict["recloss"]
