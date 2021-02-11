@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-# from torch.autograd import Variable # Not needed
 from typing import Tuple, Union, List, Dict
 import numpy as np
 from torch import Tensor as T
@@ -146,9 +145,9 @@ class VAE(nn.Module):
         x_hat = self.encoder(x)
         x_hat.shape
         # Then, from the latent variables' PDF of Q(z), sample the means and the vars
-        mus, log_sigmas = self.Q(x_hat)
+        mus, log_sigma_sq = self.Q(x_hat)
         # Once the mus and the
-        z_sampled = self.z(mus, log_sigmas)
+        z_sampled = self.z(mus, log_sigma_sq)
         z_sampled.shape
         z_projected = self.project(z_sampled).view(
             -1, self.n_kernels, self.output_shapes[-1][2], self.output_shapes[-1][3]
@@ -156,18 +155,18 @@ class VAE(nn.Module):
 
         output = self.decoder(z_projected)
 
-        return (mus, log_sigmas), output
+        return (mus, log_sigma_qs), output
 
     def Q(self, x_hat):
         # Q is the latent variables' PDF
 
         x_hat = x_hat.view(-1, self.q_in)
-        mu, log_sigma = self.q_mu(x_hat), self.q_vars(x_hat)
-        return mu, log_sigma
+        mu, log_sigma_sq = self.q_mu(x_hat), self.q_vars(x_hat)
+        return mu, log_sigma_sq
 
-    def z(self, mu, log_sigma):
+    def z(self, mu, log_sigma_sq):
         # Sample from z
-        sigma = log_sigma.mul(0.5).exp_()
+        sigma = log_sigma_sq.mul(0.5).exp_()
         # Here we sample from a normal distribution
         #
         ret = torch.randn(mu.shape)
@@ -207,8 +206,8 @@ class VAE(nn.Module):
         else:
             return nn.Linear(n_in, n_out)
 
-    def kldivloss(self, mu, logsigma):
-        return ((mu ** 2 + logsigma.exp() - 1 - logsigma) / 2).mean()
+    def kldivloss(self, mu, logsigma_sq):
+        return ((mu ** 2 + logsigma_sq.exp() - 1 - logsigma_sq) / 2).mean()
 
     def recloss(self, x, x_hat):
         try:
@@ -218,9 +217,9 @@ class VAE(nn.Module):
             print(x)
             raise Exception("ERROR")
 
-    def loss(self, mu, logsigma, x, x_hat):
+    def loss(self, mu, logsigma_sq, x, x_hat):
         loss = {}
-        loss["kldivloss"] = self.kldivloss(mu, logsigma)
+        loss["kldivloss"] = self.kldivloss(mu, logsigma_sq)
         loss["recloss"] = self.recloss(x, x_hat)
         tot_loss = loss["kldivloss"] + loss["recloss"]
         return tot_loss, loss

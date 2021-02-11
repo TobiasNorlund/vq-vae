@@ -1,7 +1,7 @@
 import torch
-from src.run import train_vae
-from src.vae import VAE
-from src.data import train_val_test_loader
+from run import train_vae
+from vae import VAE
+from data import train_val_test_loader
 
 
 def main():

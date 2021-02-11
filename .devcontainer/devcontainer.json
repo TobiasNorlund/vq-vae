@@ -1,5 +1,5 @@
 {
-	"name": "tobias/default",
+	"name": "vq-vae",
 	"build": {
 		"context": "..",
 		"dockerfile": "../Dockerfile",
@@ -9,5 +9,6 @@
 	},
 	"extensions": ["ms-python.python"],
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
-	"workspaceFolder": "/workspace"
+	"workspaceFolder": "/workspace",
+	"remoteUser": "docker-user"
 }
