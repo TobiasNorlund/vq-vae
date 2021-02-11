@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-# from torch.autograd import Variable # Not needed
 from typing import Tuple, Union, List, Dict
 import numpy as np
 from torch import Tensor as T
@@ -162,12 +161,12 @@ class VAE(nn.Module):
         # Q is the latent variables' PDF
 
         x_hat = x_hat.view(-1, self.q_in)
-        mu, log_sigma = self.q_mu(x_hat), self.q_vars(x_hat)
-        return mu, log_sigma
+        mu, log_sigma_sq = self.q_mu(x_hat), self.q_vars(x_hat)
+        return mu, log_sigma_sq
 
-    def z(self, mu, log_sigma):
+    def z(self, mu, log_sigma_sq):
         # Sample from z
-        sigma = log_sigma.mul(0.5).exp_()
+        sigma = log_sigma_sq.mul(0.5).exp_()
         # Here we sample from a normal distribution
         #
         ret = torch.randn(mu.shape)

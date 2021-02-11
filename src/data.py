@@ -8,7 +8,7 @@ from torchvision import transforms
 def get_data_loader(
     batch_size: int,
     dataset: str = "CIFAR10",
-    dataset_root: str = "data",
+    dataset_root: str = "../data",
     additional_dataset_args: dict = {},
     shuffle: bool = False,
     additional_dataloader_args: dict = {},
@@ -34,7 +34,7 @@ def train_val_test_loader(
     batch_size,
     dataset: str = "CIFAR10",
     fractions=(0.7, 0.2, 0.1),
-    dataset_root: str = "data",
+    dataset_root: str = "../data",
     additional_dataset_args: dict = {},
     shuffle: bool = False,
     additional_dataloader_args: dict = {},
