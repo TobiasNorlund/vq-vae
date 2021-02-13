@@ -1,3 +1,6 @@
 torch==1.7.1
 pytest==6.2.1
 torchvision==0.8.2
+matplotlib
+pytorch-lightning
+pytorch-lightning-bolts
