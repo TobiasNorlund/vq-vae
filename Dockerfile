@@ -1,4 +1,5 @@
-FROM python:3.8
+#FROM python:3.8
+FROM pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime
 
 RUN groupadd -r docker-user && useradd -r -m -s /bin/false -g docker-user docker-user
 
