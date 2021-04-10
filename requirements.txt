@@ -4,5 +4,5 @@ torchvision==0.8.2
 matplotlib
 jupyter
 tensorboard
-pytorch-lightning
+pytorch-lightning==1.2.0
 pytorch-lightning-bolts
